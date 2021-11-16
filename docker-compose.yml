@@ -1,0 +1,39 @@
+version: "3"
+services:
+  mariadb:
+    image: "mariadb:10.6"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${ROOT_PASSWORD}
+      - MYSQL_DATABASE=alquilerCoches
+
+    volumes:
+      - db:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d/:ro
+    ports:
+      - 3306:3306
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src/:/app
+  debug-app:
+    container_name: ${CONTAINER_NAME}
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    ports:
+      - "${PORT}:${PORT}"
+    security_opt:
+      - "seccomp:unconfined"
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./src/:/app
+    command: dlv debug --headless --listen=:${PORT} --api-version=2 --log ${MAIN_FILE}
+
+volumes:
+  db: {}
+
+networks:
+  my-network: {}
