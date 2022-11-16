@@ -1,14 +1,13 @@
-version: "3"
+version: "3.7"
 services:
   mariadb:
     image: "mariadb:10.9"
     environment:
       - MYSQL_ROOT_PASSWORD=${ROOT_PASSWORD}
       - MYSQL_DATABASE=alquilerCoches
-
     volumes:
-      - db:/var/lib/mysql
-      - ./db:/docker-entrypoint-initdb.d/:ro
+      - exampledb:/var/lib/mysql
+      - ./db/alquiler.sql:/docker-entrypoint-initdb.d/setup.sql
     ports:
       - 3306:3306
   app:
@@ -17,6 +16,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./src/:/app
+    links:
+      - mariadb
   debug-app:
     container_name: ${CONTAINER_NAME}
     build:
@@ -33,7 +34,4 @@ services:
     command: dlv debug --headless --listen=:${PORT} --api-version=2 --log ${MAIN_FILE}
 
 volumes:
-  db: {}
-
-networks:
-  my-network: {}
+  exampledb: {}
