@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/eduperz05/docker-golang-hot-reload/model"
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -47,11 +49,20 @@ func main() {
 		DBName:   "alquilerCoches",
 		Password: "12345",
 	}
-	_, err := gorm.Open(mysql.Open(DbURL(config)), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(DbURL(config)), &gorm.Config{
 		Logger: newLogger,
 	})
+	db.Debug().AutoMigrate(model.Cliente{})
+
 	if err != nil {
 		log.Println("Error al conectar a la base de datos")
 	}
 
+	app := fiber.New()
+
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
+
+	log.Fatal(app.Listen(":3000"))
 }

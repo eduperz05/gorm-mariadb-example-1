@@ -16,6 +16,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./src/:/app
+    ports:
+      - 3000:3000
     links:
       - mariadb
   debug-app:
